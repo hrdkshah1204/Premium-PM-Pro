@@ -1,0 +1,126 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ProPM - Modular Workspace</title>
+    <style>
+        :root { --primary: #2563eb; --bg: #f8fafc; --surface: #ffffff; --text: #0f172a; --border: #e2e8f0; }
+        body { font-family: system-ui, sans-serif; background: var(--bg); color: var(--text); margin: 0; padding: 0; }
+        .hidden { display: none !important; }
+        h1, h2, h3 { color: var(--primary); margin-top: 0; }
+        
+        button { background: var(--primary); color: white; border: none; padding: 10px 15px; border-radius: 6px; font-weight: 500; cursor: pointer; transition: 0.2s; }
+        button:hover { opacity: 0.9; }
+        button.outline { background: transparent; color: var(--primary); border: 1px solid var(--primary); }
+        
+        input, select { padding: 10px; border: 1px solid var(--border); border-radius: 6px; width: 100%; box-sizing: border-box; }
+        
+        #login-view { max-width: 400px; margin: 10vh auto; background: var(--surface); padding: 30px; border-radius: 12px; box-shadow: 0 4px 6px rgba(0,0,0,0.05); text-align: center; border: 1px solid var(--border); }
+        #admin-view { display: flex; min-height: 100vh; }
+        .sidebar { width: 250px; background: var(--surface); border-right: 1px solid var(--border); padding: 20px; display: flex; flex-direction: column; gap: 10px; }
+        .sidebar-btn { background: transparent; color: var(--text); text-align: left; border: none; padding: 12px; border-radius: 6px; cursor: pointer; }
+        .sidebar-btn.active { background: #e0e7ff; color: var(--primary); font-weight: bold; }
+        .main-content { flex: 1; padding: 30px; max-width: 1000px; }
+        
+        table { width: 100%; border-collapse: collapse; margin-top: 20px; background: var(--surface); border: 1px solid var(--border); border-radius: 8px; overflow: hidden; }
+        th, td { padding: 15px; text-align: left; border-bottom: 1px solid var(--border); font-size: 14px; }
+        th { background: #f1f5f9; color: #475569; }
+    </style>
+</head>
+<body>
+
+    <div id="login-view">
+        <h1 id="auth-title">ProPM</h1>
+        <p id="auth-subtitle" style="color: #64748b; margin-bottom: 20px;">Sign in to your workspace.</p>
+        <div style="text-align: left; margin-bottom: 10px;">
+            <div style="margin-bottom:10px;"><label>Email</label><input type="email" id="login-email"></div>
+            <div style="margin-bottom:10px;"><label>Password</label><input type="password" id="login-password"></div>
+            <button id="btn-primary-auth" style="width: 100%; margin-top: 10px;">Sign In</button>
+            <div style="display: flex; justify-content: space-between; margin-top: 15px;">
+                <button class="outline" id="btn-toggle-auth" style="flex: 1; margin-right: 5px; font-size: 11px;">Create Account</button>
+                <button class="outline" id="btn-forgot-pass" style="flex: 1; margin-left: 5px; font-size: 11px;">Forgot Password?</button>
+            </div>
+        </div>
+        <button class="outline" id="btn-google-login" style="width: 100%; margin-top: 15px;">Continue with Google</button>
+        <p id="auth-status" style="font-size: 12px; margin-top: 15px; color: #ef4444; font-weight:bold;"></p>
+    </div>
+
+    <div id="onboarding-view" class="hidden" style="max-width: 500px; margin: 5vh auto; background: var(--surface); padding: 40px; border-radius: 12px; border: 1px solid var(--border);">
+        <h2>Setup Your Workspace</h2>
+        <div style="margin-bottom:15px;"><label>Full Name</label><input type="text" id="ob-name"></div>
+        <div style="margin-bottom:15px;"><label>Workspace Name</label><input type="text" id="ob-workspace-name" placeholder="e.g., Creative Studio"></div>
+        <div style="margin-bottom:20px;"><label>Company Name</label><input type="text" id="ob-company"></div>
+        <button id="btn-complete-onboarding" style="width: 100%; padding: 12px;">Launch Workspace</button>
+    </div>
+
+    <div id="admin-view" class="hidden">
+        <div class="sidebar">
+            <h2 id="display-workspace-name" style="font-size: 18px; color: var(--primary); margin-bottom: 20px;">Workspace</h2>
+            <button class="sidebar-btn active" data-page="sub1">1. Projects</button>
+            <button class="sidebar-btn" data-page="sub3">2. Teams</button>
+            <button class="sidebar-btn" data-page="sub6">3. Analytics</button>
+            <div style="flex: 1;"></div>
+            <div style="font-size: 11px; color: #64748b;">User: <br><strong id="display-user-email"></strong></div>
+            <button class="outline" id="btn-logout">Log Out</button>
+        </div>
+
+        <div class="main-content">
+            <div id="sub1" class="sub-page">
+                <h3>Project Inventory</h3>
+                <div style="display:flex; gap:10px; margin-bottom:20px;">
+                    <input type="text" id="p-name" placeholder="Project Title" style="flex:2;">
+                    <input type="date" id="p-date" style="flex:1;">
+                    <button id="btn-save-project">Save Project</button>
+                </div>
+                <table><thead><tr><th>Project</th><th>Deadline</th><th>Status</th></tr></thead><tbody id="project-table-body"></tbody></table>
+            </div>
+
+            <div id="sub2" class="sub-page hidden">
+                <h3>Task Creation</h3>
+                <div style="display:flex; gap:10px; margin-bottom:20px;">
+                    <select id="t-project-id" style="flex:1;"></select>
+                    <input type="text" id="t-desc" placeholder="Task Description" style="flex:2;">
+                    <button id="btn-save-task">Add Task</button>
+                </div>
+                <table><thead><tr><th style="width:30px;"></th><th>Project</th><th>Tasks</th></tr></thead><tbody id="tasks-table-body"></tbody></table>
+            </div>
+
+            <div id="sub3" class="sub-page hidden">
+                <h3>Teams</h3>
+                <div style="display:flex; gap:10px; margin-bottom:20px;">
+                    <input type="text" id="team-name" placeholder="Team Name" style="flex:2;">
+                    <button id="btn-save-team">Save Team</button>
+                </div>
+                <table><thead><tr><th>Name</th><th>Manage</th><th>Actions</th></tr></thead><tbody id="team-table-body"></tbody></table>
+            </div>
+
+            <div id="sub4" class="sub-page hidden">
+                <h3>Add Members</h3>
+                <div style="display:grid; grid-template-columns: 1fr 1fr; gap:10px; margin-bottom:20px;">
+                    <input type="text" id="m-name" placeholder="Name">
+                    <input type="email" id="m-email" placeholder="Email">
+                    <select id="m-team-id"></select>
+                    <button id="btn-save-member">Register Member</button>
+                </div>
+                <table><thead><tr><th>Name</th><th>Email</th><th>Team</th></tr></thead><tbody id="member-table-body"></tbody></table>
+            </div>
+
+            <div id="sub5" class="sub-page hidden">
+                <h3>Task Allocation</h3>
+                <select id="assign-project-select" style="max-width: 400px; margin-bottom: 20px;"></select>
+                <table><thead><tr><th>Task</th><th>Team</th><th>Member</th><th>Action</th></tr></thead><tbody id="assign-table-body"></tbody></table>
+                <h3 style="margin-top:30px;">Allocation Summary</h3>
+                <table><thead><tr><th>Task</th><th>Team</th><th>Owner</th><th>Status</th></tr></thead><tbody id="allocation-summary-body"></tbody></table>
+            </div>
+
+            <div id="sub6" class="sub-page hidden">
+                <h3>Workspace Analytics</h3>
+                <div id="project-progress-container"></div>
+                <table style="margin-top:30px;"><thead><tr><th>Team</th><th>Total</th><th>To-Do</th><th>Progress</th><th>Done</th></tr></thead><tbody id="analytics-team-body"></tbody></table>
+            </div>
+        </div>
+
+    <script type="module" src="app.js"></script>
+</body>
+</html>
