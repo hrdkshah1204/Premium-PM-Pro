@@ -110,6 +110,24 @@ onAuthStateChanged(auth, async (user) => {
                 document.getElementById('admin-view').classList.remove('hidden');
                 document.getElementById('display-org-name').innerText = data.company || "Workspace";
                 document.querySelectorAll('.user-name').forEach(el => el.innerText = data.name);
+                // Populate Settings (With Safety Checks!)
+                const setName = document.getElementById('set-name');
+                if (setName) setName.value = data.name || "";
+
+                const setEmail = document.getElementById('set-email');
+                if (setEmail) setEmail.value = user.email || ""; 
+
+                const setPhone = document.getElementById('set-phone');
+                if (setPhone) setPhone.value = data.phone || "";
+
+                const setCompany = document.getElementById('set-company');
+                if (setCompany) setCompany.value = data.company || "";
+
+                const setSize = document.getElementById('set-size');
+                if (setSize) setSize.value = data.teamSize || "1 - 10";
+
+                const setAddress = document.getElementById('set-address');
+                if (setAddress) setAddress.value = data.companyAddress || "";
                 
                 // Populate Settings
                 document.getElementById('set-name').value = data.name || "";
@@ -155,3 +173,4 @@ onAuthStateChanged(auth, async (user) => {
 
 // NOTE: window.navTo and window.navToMember have been removed from here 
 // because they are safely managed inside admin.js and member.js respectively.
+
