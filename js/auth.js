@@ -10,7 +10,18 @@ import { doc, getDoc, setDoc } from "https://www.gstatic.com/firebasejs/10.8.0/f
 
 const provider = new GoogleAuthProvider();
 provider.setCustomParameters({prompt: 'select_account'});
-
+window.signIn = () => {
+    signInWithPopup(auth, provider)
+        .then((result) => {
+            console.log("Login Successful!", result.user);
+        })
+        .catch((error) => {
+            console.error("Login Failed:", error.code, error.message);
+            // If you still see 'auth/unauthorized-domain', Step 1 didn't save yet!
+            document.getElementById('auth-status').innerText = "Error: " + error.message;
+        });
+};
+	
 // --- UI THEME ---
 window.setTheme = (mode) => {
     document.documentElement.setAttribute('data-theme', mode);
