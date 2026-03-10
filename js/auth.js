@@ -62,7 +62,7 @@ window.forgotPassword = () => {
     sendPasswordResetEmail(auth, email).then(() => alert("Reset email sent!")).catch(err => alert(err.message));
 };
 
-window.signIn = () => signInWithPopup(auth, provider);
+//window.signIn = () => signInWithPopup(auth, provider);
 window.signOutUser = () => signOut(auth);
 
 window.completeOnboarding = async () => {
@@ -154,3 +154,4 @@ window.navToMember = (id) => {
     document.querySelectorAll('.m-page').forEach(p => p.classList.add('hidden'));
     document.getElementById(id).classList.remove('hidden');
 };
+
