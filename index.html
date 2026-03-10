@@ -150,38 +150,35 @@
                     <table style="margin-top: 30px;"><thead><tr><th>Team Name</th><th>Total</th><th>To-Do</th><th>WIP</th><th>Done</th></tr></thead><tbody id="analytics-team-body"></tbody></table>
                 </div>
 
-               <div id="sub7" class="sub-page hidden">
-    <h3>Workspace Settings</h3>
-    <div style="background: var(--surface); padding: 25px; border-radius: 12px; border: 1px solid var(--border);">
-        <div class="form-row">
-            <div class="form-group"><label>Name</label><input id="set-name" disabled></div>
-            <div class="form-group"><label>Email</label><input id="set-email" disabled></div>
-        </div>
-        <div class="form-row">
-            <div class="form-group"><label>Phone</label><input id="set-phone" disabled></div>
-            <div class="form-group"><label>Company</label><input id="set-company" disabled></div>
-        </div>
-        <div class="form-row">
-            <div class="form-group"><label>Company Address</label><textarea id="set-address" rows="2" disabled></textarea></div>
-            <div class="form-group">
-                <label>Team Size</label>
-                <select id="set-size" disabled>
-                    <option value="1 - 10">1 - 10</option>
-                    <option value="11 - 50">11 - 50</option>
-                    <option value="51 - 150">51 - 150</option>
-                </select>
-            </div>
-        </div>
-        <button id="btn-edit-admin" onclick="toggleAdminEdit()" style="margin-top:20px">Edit Details</button>
-        
-        <hr style="margin: 30px 0; border: 0; border-top: 1px solid var(--border);">
-        <h4>Theme</h4>
-        <div style="display: flex; gap: 15px; margin-top: 15px;">
-            <button class="outline" onclick="setTheme('light')" style="flex: 1;">☀️ Light</button>
-            <button class="outline" onclick="setTheme('dark')" style="flex: 1; background: #1e293b; color: white;">🌑 Dark</button>
-        </div>
-    </div>
-</div>
+                <div id="sub7" class="sub-page hidden">
+                    <h3>Workspace Settings</h3>
+                    <div style="background: var(--surface); padding: 25px; border-radius: 12px; border: 1px solid var(--border);">
+                        <div class="form-row">
+                            <div class="form-group"><label>Name</label><input id="set-name" disabled></div>
+                            <div class="form-group"><label>Email</label><input id="set-email" disabled></div>
+                        </div>
+                        <div class="form-row">
+                            <div class="form-group"><label>Phone</label><input id="set-phone" disabled></div>
+                            <div class="form-group"><label>Company</label><input id="set-company" disabled></div>
+                        </div>
+                        <div class="form-row">
+                            <div class="form-group"><label>Company Address</label><textarea id="set-address" rows="2" disabled></textarea></div>
+                            <div class="form-group">
+                                <label>Team Size</label>
+                                <select id="set-size" disabled>
+                                    <option value="1 - 10">1 - 10</option>
+                                    <option value="11 - 50">11 - 50</option>
+                                    <option value="51 - 150">51 - 150</option>
+                                </select>
+                            </div>
+                        </div>
+                        <button id="btn-edit-admin" onclick="toggleAdminEdit()" style="margin-top:20px">Edit Details</button>
+                        <hr style="margin: 30px 0; border: 0; border-top: 1px solid var(--border);">
+                        <h4>Theme</h4>
+                        <div style="display: flex; gap: 15px; margin-top: 15px;">
+                            <button class="outline" onclick="setTheme('light')" style="flex: 1;">☀️ Light</button>
+                            <button class="outline" onclick="setTheme('dark')" style="flex: 1; background: #1e293b; color: white;">🌑 Dark</button>
+                        </div>
                     </div>
                 </div>
 
@@ -193,7 +190,7 @@
                             <button class="danger" onclick="deleteAdminNotifications()">Delete All</button>
                         </div>
                     </div>
-                    <table style="margin-top: 20px;"><thead><tr><th>Message</th><th style="width: 80px;">Pin</th></tr></thead><tbody id="admin-notif-table-body"></tbody></table>
+                    <table style="margin-top: 20px;"><thead><tr><th>Message</th><th style="width: 80px; text-align: center;">Pin</th></tr></thead><tbody id="admin-notif-table-body"></tbody></table>
                 </div>
             </div>
         </div>
@@ -227,27 +224,27 @@
                     <div class="task-grid" id="m-task-grid"></div>
                 </div>
                 <div id="m-sub2" class="m-page hidden">
-    <h3>My Profile</h3>
-    <div style="background: var(--surface); padding: 25px; border-radius: 12px; border: 1px solid var(--border); margin-top: 20px;">
-        <div class="form-row">
-            <div class="form-group"><label>Name</label><input id="mp-name" disabled></div>
-            <div class="form-group"><label>Email</label><input id="mp-email" disabled></div>
-        </div>
-        <div class="form-row">
-            <div class="form-group"><label>Phone</label><input id="mp-phone"></div>
-            <div class="form-group"><label>Company</label><input id="mp-company" disabled></div>
-        </div>
-        <div class="form-group"><label>Address</label><textarea id="mp-address" maxlength="1200" rows="3"></textarea></div>
-        <div class="form-row">
-            <div class="form-group"><label>Emergency Contact</label><input id="mp-em-name"></div>
-            <div class="form-group"><label>Emergency Phone</label><input id="mp-em-num"></div>
-        </div>
-        <button onclick="updateMemberProfile()" style="margin-top:20px">Update Profile</button>
-    </div>
-</div>
+                    <h3>My Profile</h3>
+                    <div style="background: var(--surface); padding: 25px; border-radius: 12px; border: 1px solid var(--border); margin-top: 20px;">
+                        <div class="form-row">
+                            <div class="form-group"><label>Name</label><input id="mp-name" disabled></div>
+                            <div class="form-group"><label>Email</label><input id="mp-email" disabled></div>
+                        </div>
+                        <div class="form-row">
+                            <div class="form-group"><label>Phone</label><input id="mp-phone"></div>
+                            <div class="form-group"><label>Company</label><input id="mp-company" disabled></div>
+                        </div>
+                        <div class="form-group"><label>Address</label><textarea id="mp-address" maxlength="1200" rows="3"></textarea></div>
+                        <div class="form-row">
+                            <div class="form-group"><label>Emergency Contact</label><input id="mp-em-name"></div>
+                            <div class="form-group"><label>Emergency Phone</label><input id="mp-em-num"></div>
+                        </div>
+                        <button onclick="updateMemberProfile()" style="margin-top:20px">Update Profile</button>
+                    </div>
+                </div>
                 <div id="m-sub3" class="m-page hidden">
                     <h3>Alerts</h3>
-                    <table style="margin-top: 20px;"><thead><tr><th>Message</th><th style="width: 80px;">Pin</th></tr></thead><tbody id="member-notif-table-body"></tbody></table>
+                    <table style="margin-top: 20px;"><thead><tr><th>Message</th><th style="width: 80px; text-align: center;">Pin</th></tr></thead><tbody id="member-notif-table-body"></tbody></table>
                 </div>
                 <div id="m-sub4" class="m-page hidden">
                     <h3>Task History</h3>
@@ -295,5 +292,3 @@
     </script>
 </body>
 </html>
-
-
