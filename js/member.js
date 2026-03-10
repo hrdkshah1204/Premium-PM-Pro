@@ -122,19 +122,30 @@ window.submitTaskUpdate = async (tid) => {
             payload.commentHistory = t.commentHistory ? [...t.commentHistory, note] : [note];
         }
         
+        // 1. Update the actual task
         await updateDoc(doc(db, "tasks", tid), payload);
         
-        // Notify Admin
-        await addDoc(collection(db, "notifications"), { 
-            forEmail: memberData.adminEmail, 
-            fromEmail: auth.currentUser.email, 
-            message: `${memberData.name} updated task "${t.description}" to ${stat}`, 
-            timestamp: Date.now(), 
-            read: false 
-        });
+        // 2. BULLETPROOF NOTIFICATION LOGIC
+        // Try to get Admin email from the Member profile first. If missing, get it from the Task!
+        const targetAdminEmail = memberData.adminEmail || t.adminEmail;
+
+        if (targetAdminEmail) {
+            await addDoc(collection(db, "notifications"), { 
+                forEmail: targetAdminEmail, 
+                fromEmail: auth.currentUser.email, 
+                message: `${memberData.name || 'A team member'} updated task "${t.description}" to [${stat}]`, 
+                timestamp: Date.now(), 
+                read: false,
+                bookmarked: false
+            });
+            console.log("Notification successfully sent to Admin:", targetAdminEmail);
+        } else {
+            console.warn("Could not find an Admin email to notify.");
+        }
         
         alert("Task updated successfully!");
     } catch (e) { 
+        console.error("Update Error:", e);
         alert("Error: " + e.message); 
     }
 };
