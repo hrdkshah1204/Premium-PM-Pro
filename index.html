@@ -243,9 +243,23 @@
                     </div>
                 </div>
                 <div id="m-sub3" class="m-page hidden">
-                    <h3>Alerts</h3>
-                    <table style="margin-top: 20px;"><thead><tr><th>Message</th><th style="width: 80px; text-align: center;">Pin</th></tr></thead><tbody id="member-notif-table-body"></tbody></table>
-                </div>
+    <div style="display: flex; justify-content: space-between; align-items: center;">
+        <h3>Alerts</h3>
+        <div>
+            <button class="outline" onclick="markAllMemberNotificationsRead()">Mark Read</button>
+            <button class="danger" onclick="deleteMemberNotifications()">Delete All</button>
+        </div>
+    </div>
+    <table style="margin-top: 20px;">
+        <thead>
+            <tr>
+                <th>Message</th>
+                <th style="width: 80px; text-align: center;">Pin</th>
+            </tr>
+        </thead>
+        <tbody id="member-notif-table-body"></tbody>
+    </table>
+</div>
                 <div id="m-sub4" class="m-page hidden">
                     <h3>Task History</h3>
                     <div class="task-grid" id="m-history-grid" style="margin-top: 20px;"></div>
@@ -292,3 +306,4 @@
     </script>
 </body>
 </html>
+
