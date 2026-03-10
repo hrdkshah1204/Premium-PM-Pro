@@ -4,14 +4,16 @@ import { getAnalytics } from "https://www.gstatic.com/firebasejs/10.8.0/firebase
 import { getAuth } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-auth.js";
 import { getFirestore } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
 
-const firebaseConfig = { 
-    apiKey: "AIzaSyCo_tMyCAhdUAMp_Mx2popJp2nqurO7SlY", 
-    authDomain: "pm-pro-80c67.firebaseapp.com", 
-    projectId: "pm-pro-80c67",
-    storageBucket: "pm-pro-80c67.firebasestorage.app",
-    messagingSenderId: "553036723851",
-    appId: "1:553036723851:web:3167a4def993500c39468e"
+const firebaseConfig = {
+  apiKey: "AIzaSyB3xwQj1TXXBhE1UyH4LJaKV3a-qU5sU64",
+  AUTH Domain: "pmpro-4507b.firebaseapp.com",
+  projectId: "pmpro-4507b",
+  storageBucket: "pmpro-4507b.firebasestorage.app",
+  messagingSenderId: "508717628741",
+  appId: "1:508717628741:web:484a4d8efdca8fa55c122c",
+  measurementId: "G-VCNZMQ71LF"
 };
+
 
 // Initialize Primary App
 export const app = initializeApp(firebaseConfig);
