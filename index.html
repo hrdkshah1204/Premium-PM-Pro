@@ -1,0 +1,303 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ProPM - Workspace</title>
+    <link rel="stylesheet" href="css/styles.css">
+</head>
+<body>
+
+    <div id="login-view">
+        <h1 id="auth-title">ProPM</h1>
+        <p id="auth-subtitle" style="color: #64748b; margin-bottom: 20px;">Sign in to your workspace.</p>
+        <div style="text-align: left;">
+            <div class="form-group"><label>Email Address</label><input type="email" id="login-email" placeholder="email@example.com"></div>
+            <div class="form-group" style="margin-top: 10px;"><label>Password</label><input type="password" id="login-password" placeholder="••••••••"></div>
+            <button id="btn-primary-auth" onclick="signInWithEmail()" style="width: 100%; margin-top: 15px;">Sign In</button>
+            <div style="display: flex; justify-content: space-between; margin-top: 15px;">
+                <button class="outline" id="btn-toggle-auth" onclick="toggleAuthMode()" style="flex: 1; margin-right: 5px; padding: 8px; font-size: 12px;">Create Account</button>
+                <button class="outline" onclick="forgotPassword()" style="flex: 1; margin-left: 5px; padding: 8px; font-size: 12px;">Forgot Password?</button>
+            </div>
+        </div>
+        <div style="margin: 20px 0; color: #cbd5e1; display: flex; align-items: center; gap: 10px;">
+            <hr style="flex:1; border:0; border-top:1px solid #e2e8f0;"> or <hr style="flex:1; border:0; border-top:1px solid #e2e8f0;">
+        </div>
+        <button class="outline" onclick="signIn()" style="width: 100%;">Continue with Google</button>
+        <p id="auth-status" style="font-size: 13px; margin-top: 15px; color: #ef4444; font-weight: 600;"></p>
+    </div>
+
+    <div id="onboarding-view" class="hidden" style="max-width: 500px; margin: 5vh auto; background: var(--surface); padding: 40px; border-radius: 12px; border: 1px solid var(--border);">
+        <h2>Setup Your Workspace</h2>
+        <div class="form-group"><label>Full Name</label><input type="text" id="ob-name"></div>
+        <div class="form-group"><label>Workspace Name</label><input type="text" id="ob-workspace-name"></div>
+        <div class="form-group"><label>Company Name</label><input type="text" id="ob-company"></div>
+        <div class="form-group" style="margin-bottom: 25px;">
+            <label>Estimated Team Size</label>
+            <select id="ob-size">
+                <option value="1 - 10">1 - 10</option>
+                <option value="11 - 50">11 - 50</option>
+                <option value="51 - 150">51 - 150</option>
+                <option value="151 - 500">151 - 500</option>
+            </select>
+        </div>
+        <button onclick="completeOnboarding()" style="width: 100%; padding: 12px;">Complete Setup & Enter Console</button>
+    </div>
+
+    <div id="admin-view" class="hidden"> 
+        <div class="sidebar">  
+            <div class="brand-logo">ProPM</div> 
+            <button class="sidebar-btn active" onclick="navTo('sub1')">1. Create Project</button>
+            <button class="sidebar-btn" onclick="navTo('sub3')">2. Add Teams</button>
+            <button class="sidebar-btn" onclick="navTo('sub5')">3. Assign Project</button>
+            <button class="sidebar-btn" onclick="navTo('sub6')">4. Analytics</button>
+            <div style="flex: 1;"></div> 
+            <div style="background: var(--bg); padding: 15px; border-radius: 10px; margin-bottom: 10px; border: 1px solid var(--border);"> 
+                <div class="org-badge" id="display-org-name">Organization</div> 
+                <div style="font-size: 11px; color: #64748b; margin-top: 5px;">Logged in as</div>
+                <div class="user-name" style="font-weight: 700; color: var(--text); font-size: 14px;">Admin Name</div>
+                <div class="role-pill">ADMIN</div>
+            </div>
+        </div> 
+
+        <div class="view-container">
+            <div class="top-quick-access">
+                <button class="quick-btn" onclick="navTo('sub8')" style="position: relative;">
+                    🔔 Notifications
+                    <span id="admin-notif-dot" class="hidden" style="position: absolute; top: 6px; right: 6px; width: 10px; height: 10px; background: #3b82f6; border-radius: 50%; border: 2px solid var(--surface);"></span>
+                </button>
+                <button class="quick-btn" onclick="navTo('sub7')">👤 Profile</button>
+                <button class="quick-btn" onclick="signOutUser()">🚪 Logout</button>
+            </div>
+            <div class="main-content">
+                <div id="sub1" class="sub-page">
+                    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px;">
+                        <h3>Create New Project</h3>
+                        <button class="outline" onclick="logEvent(analytics, 'template_intent'); alert('Coming Soon')">📑 Templates</button>
+                    </div>
+                    <div class="form-row">
+                        <div class="form-group" style="flex: 2;"><label>Project Name</label><input type="text" id="p-name"></div>
+                        <div class="form-group"><label>End Date</label><input type="date" id="p-date"></div>
+                    </div>
+                    <div class="form-group"><label>Description</label><input type="text" id="p-desc"></div>
+                    <input type="hidden" id="edit-project-id">
+                    <button onclick="saveProject()" style="margin-top:10px">Save Project</button>
+                    <button id="btn-cancel-edit" class="outline hidden" onclick="cancelEdit()" style="margin-left:10px; margin-top:10px">Cancel</button>
+                    <table style="margin-top: 30px;"><thead><tr><th>Project Name</th><th>End Date</th><th>Description</th><th>Actions</th></tr></thead><tbody id="project-table-body"></tbody></table>
+                </div>
+
+                <div id="sub2" class="sub-page hidden">
+                    <button class="outline" onclick="navTo('sub1')" style="margin-bottom:20px;">⬅ Back</button>
+                    <h3>Create Project Tasks</h3>
+                    <div class="form-row">
+                        <div class="form-group"><label>Select Project</label><select id="t-project-id"></select></div>
+                        <div class="form-group" style="flex: 2;"><label>Task Name</label><input type="text" id="t-desc"></div>
+                    </div>
+                    <div class="form-group"><label>Instructions</label><textarea id="t-details" rows="2"></textarea></div>
+                    <button onclick="saveTask()">Save Task</button>
+                    <table style="margin-top: 30px;"><thead><tr><th style="width: 50px;">View</th><th>Project Name</th><th>Count</th></tr></thead><tbody id="tasks-table-body"></tbody></table>
+                </div>
+
+                <div id="sub3" class="sub-page hidden">
+                    <h3>Workspace Teams</h3>
+                    <div class="form-row">
+                        <div class="form-group" style="flex: 3;"><label>Team Name</label><input type="text" id="team-name"></div>
+                        <input type="hidden" id="edit-team-id">
+                        <button onclick="saveTeam()" style="align-self: flex-end; padding: 10px 30px;">Save Team</button>
+                    </div>
+                    <table style="margin-top: 20px;"><thead><tr><th>Team Name</th><th>Capacity</th><th>Add</th><th>Edit</th><th>Del</th></tr></thead><tbody id="team-table-body"></tbody></table>
+                </div>
+
+                <div id="sub4" class="sub-page hidden">
+                    <button class="outline" onclick="navTo('sub3')" style="margin-bottom:20px;">⬅ Back</button>
+                    <h3>Add Team Members</h3>
+                    <div class="form-row">
+                        <div class="form-group"><label>Name</label><input type="text" id="m-name"></div>
+                        <div class="form-group"><label>Email</label><input type="email" id="m-email"></div>
+                        <div class="form-group"><label>Phone</label><input type="text" id="m-phone"></div>
+                    </div>
+                    <div class="form-row">
+                        <div class="form-group"><label>Select Team</label><select id="m-team-id"></select></div>
+                        <input type="hidden" id="edit-member-id">
+                        <button onclick="saveMember()" style="align-self: flex-end; flex: 1;">Save Member</button>
+                    </div>
+                    <table style="margin-top:20px;"><thead><tr><th>Name</th><th>Team</th><th>Email</th><th>Actions</th></tr></thead><tbody id="member-table-body"></tbody></table>
+                </div>
+
+                <div id="sub5" class="sub-page hidden">
+                    <h3>Assign Project Tasks</h3>
+                    <select id="assign-project-select" onchange="loadAssignmentTable()" style="max-width: 400px; margin-bottom: 20px;"></select>
+                    <table><thead><tr><th>Task</th><th>Team</th><th>Member</th><th>Target</th><th>Action</th></tr></thead><tbody id="assign-table-body"></tbody></table>
+                    <h3 style="margin-top: 40px;">Allocation Summary</h3>
+                    <table><thead><tr><th>Task</th><th>Team</th><th>Assigned To</th><th>Status</th></tr></thead><tbody id="allocation-summary-body"></tbody></table>
+                </div>
+
+                <div id="sub6" class="sub-page hidden">
+                    <h3>Analytics</h3>
+                    <div style="display: flex; gap: 20px; margin-bottom: 30px;">
+                        <div style="flex: 1; background: var(--surface); padding: 20px; border-radius: 8px; border: 1px solid var(--border); text-align: center;">
+                            <div style="font-size: 13px;">Projects</div><div id="stat-projects" style="font-size: 24px; font-weight: bold; color: var(--primary);">0</div>
+                        </div>
+                        <div style="flex: 1; background: var(--surface); padding: 20px; border-radius: 8px; border: 1px solid var(--border); text-align: center;">
+                            <div style="font-size: 13px;">Teams</div><div id="stat-teams" style="font-size: 24px; font-weight: bold; color: var(--primary);">0</div>
+                        </div>
+                        <div style="flex: 1; background: var(--surface); padding: 20px; border-radius: 8px; border: 1px solid var(--border); text-align: center;">
+                            <div style="font-size: 13px;">Members</div><div id="stat-members" style="font-size: 24px; font-weight: bold; color: var(--primary);">0</div>
+                        </div>
+                    </div>
+                    <div id="project-progress-container"></div>
+                    <table style="margin-top: 30px;"><thead><tr><th>Team Name</th><th>Total</th><th>To-Do</th><th>WIP</th><th>Done</th></tr></thead><tbody id="analytics-team-body"></tbody></table>
+                </div>
+
+                <div id="sub7" class="sub-page hidden">
+                    <div class="settings-header">
+                        <h3>Workspace Settings</h3>
+                        <button onclick="logEvent(analytics, 'upgrade_intent'); alert('Coming Soon')">Upgrade to Pro</button>
+                    </div>
+                    <div style="background: var(--surface); padding: 25px; border-radius: 12px; border: 1px solid var(--border);">
+                        <div class="form-row">
+                            <div class="form-group"><label>Name</label><input id="set-name" disabled></div>
+                            <div class="form-group"><label>Email</label><input id="set-email" disabled></div>
+                        </div>
+                        <div class="form-row">
+                            <div class="form-group"><label>Phone</label><input id="set-phone" disabled></div>
+                            <div class="form-group"><label>Role</label><input id="set-role" value="ADMIN" disabled></div>
+                        </div>
+                        <div class="form-row">
+                            <div class="form-group"><label>Company</label><input id="set-company" disabled></div>
+                            <div class="form-group"><label>Team Size</label><select id="set-size" disabled><option value="1 - 10">1 - 10</option><option value="11 - 50">11 - 50</option><option value="51 - 150">51 - 150</option></select></div>
+                        </div>
+                        <div class="form-group"><label>Company Address</label><textarea id="set-address" rows="2" disabled></textarea></div>
+                        <button id="btn-edit-admin" onclick="toggleAdminEdit()" style="margin-top:20px">Edit Details</button>
+                        <hr style="margin: 30px 0; border: 0; border-top: 1px solid var(--border);">
+                        <h4>Theme</h4>
+                        <div style="display: flex; gap: 15px; margin-top: 15px;">
+                            <button class="outline" onclick="setTheme('light')" style="flex: 1;">☀️ Light</button>
+                            <button class="outline" onclick="setTheme('dark')" style="flex: 1; background: #1e293b; color: white;">🌑 Dark</button>
+                        </div>
+                    </div>
+                </div>
+
+                <div id="sub8" class="sub-page hidden">
+                    <div style="display: flex; justify-content: space-between; align-items: center;">
+                        <h3>Notifications</h3>
+                        <div>
+                            <button class="outline" onclick="markAllAdminNotificationsRead()">Mark Read</button>
+                            <button class="danger" onclick="deleteAdminNotifications()">Delete All</button>
+                        </div>
+                    </div>
+                    <table style="margin-top: 20px;"><thead><tr><th>Message</th><th style="width: 80px;">Pin</th></tr></thead><tbody id="admin-notif-table-body"></tbody></table>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div id="member-view" class="hidden">
+        <div class="sidebar">
+            <div class="brand-logo">ProPM</div>
+            <div style="margin-bottom: 20px; background: var(--bg); padding: 15px; border-radius: 10px; border: 1px solid var(--border);">
+                <div id="m-side-name" style="font-weight: 700; font-size: 14px;">User Name</div>
+                <div id="m-side-team" style="font-size: 11px; color: #64748b;">Team Name</div>
+                <div id="m-side-company" style="font-size: 11px; color: var(--primary); font-weight: 700;">Company</div>
+            </div>
+            <button class="sidebar-btn" onclick="navToMember('m-sub1')">🏠 Dashboard</button>
+            <button class="sidebar-btn" onclick="navToMember('m-sub2')">👤 Profile</button>
+            <div style="flex: 1;"></div>
+        </div>
+        <div class="view-container">
+            <div class="top-quick-access">
+                <button class="quick-btn" onclick="navToMember('m-sub4')">📜 History</button>
+                <button class="quick-btn" onclick="navToMember('m-sub3')" style="position: relative;">
+                    🔔 Alerts
+                    <span id="member-notif-dot" class="hidden" style="position: absolute; top: 6px; right: 6px; width: 10px; height: 10px; background: #3b82f6; border-radius: 50%;"></span>
+                </button>
+                <button class="quick-btn" onclick="signOutUser()">🚪 Logout</button>
+            </div>
+            <div class="main-content">
+                <div id="m-sub1" class="m-page">
+                    <h3>My Task Overview</h3>
+                    <table class="stats-summary"><thead><tr><th>Total</th><th>Done</th><th>WIP</th><th>To Do</th><th>Hold</th></tr></thead><tbody><tr><td id="m-stat-total">0</td><td id="m-stat-done">0</td><td id="m-stat-wip">0</td><td id="m-stat-todo">0</td><td id="m-stat-hold">0</td></tr></tbody></table>
+                    <div class="task-grid" id="m-task-grid"></div>
+                </div>
+
+                <div id="m-sub2" class="m-page hidden">
+                    <h3>My Profile</h3>
+                    <div style="background: var(--surface); padding: 25px; border-radius: 12px; border: 1px solid var(--border); margin-top: 20px;">
+                        <div class="form-row">
+                            <div class="form-group"><label>Full Name</label><input id="mp-name" disabled></div>
+                            <div class="form-group"><label>Email</label><input id="mp-email" disabled></div>
+                        </div>
+                        <div class="form-row">
+                            <div class="form-group"><label>Phone</label><input id="mp-phone"></div>
+                            <div class="form-group"><label>Company</label><input id="mp-company" disabled></div>
+                        </div>
+                        <div class="form-group"><label>Address</label><textarea id="mp-address" maxlength="1200" rows="3"></textarea></div>
+                        <div class="form-row">
+                            <div class="form-group"><label>Emergency Contact</label><input id="mp-em-name"></div>
+                            <div class="form-group"><label>Emergency Phone</label><input id="mp-em-num"></div>
+                        </div>
+                        <button onclick="updateMemberProfile()" style="margin-top:20px">Update Profile</button>
+                    </div>
+                </div>
+
+                <div id="m-sub3" class="m-page hidden">
+                    <div style="display: flex; justify-content: space-between; align-items: center;">
+                        <h3>Alerts</h3>
+                        <div>
+                            <button class="outline" onclick="markAllMemberNotificationsRead()">Mark Read</button>
+                            <button class="danger" onclick="deleteMemberNotifications()">Delete All</button>
+                        </div>
+                    </div>
+                    <table style="margin-top: 20px;"><thead><tr><th>Message</th><th style="width: 80px;">Pin</th></tr></thead><tbody id="member-notif-table-body"></tbody></table>
+                </div>
+
+                <div id="m-sub4" class="m-page hidden">
+                    <h3>Task History</h3>
+                    <div class="task-grid" id="m-history-grid" style="margin-top: 20px;"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+<div id="help-widget" style="position: fixed; bottom: 20px; right: 20px; z-index: 9999;">
+    <button onclick="toggleWalkthrough()" style="border-radius: 50%; width: 50px; height: 50px; font-size: 24px; box-shadow: 0 4px 10px rgba(0,0,0,0.2);">?</button>
+    <div id="walkthrough-modal" class="hidden" style="position: absolute; bottom: 60px; right: 0; width: 300px; background: var(--surface); border: 1px solid var(--border); border-radius: 12px; padding: 20px; box-shadow: 0 10px 25px rgba(0,0,0,0.1);">
+        <h3 id="wt-title">Quick Start Guide</h3>
+        <p id="wt-text" style="font-size: 14px; color: #64748b; margin: 10px 0; line-height: 1.4;"></p>
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-top: 15px;">
+            <span id="wt-progress" style="font-size: 12px; font-weight: bold; color: var(--primary);">Step 1 of 7</span>
+            <button id="wt-next-btn" onclick="nextStep()" style="padding: 5px 15px; font-size: 12px;">Next Step</button>
+        </div>
+    </div>
+</div>
+
+    <script type="module">
+        // 1. Initialize DB Core
+        import { db } from './js/firebase-config.js';
+        import { doc, updateDoc, addDoc, collection } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
+        
+        // 2. Load Modules
+        import './js/auth.js';
+        import './js/admin.js';
+        import './js/member.js';
+
+        // 3. Global Automated Helper (Notifications)
+        window.checkOverdueAndNotify = async function(tasks) {
+            const today = new Date().toISOString().split('T')[0];
+            for (let t of tasks) {
+                if (t.targetDate && t.targetDate < today && t.status !== 'Done' && t.status !== 'completed' && !t.overdueNotified) {
+                    try {
+                        await updateDoc(doc(db, "tasks", t.id), { overdueNotified: true });
+                        if(t.adminEmail) await addDoc(collection(db, "notifications"), { forEmail: t.adminEmail, message: `OVERDUE: Task "${t.description}" is overdue!`, timestamp: Date.now(), read: false });
+                        if(t.assignedToEmail) await addDoc(collection(db, "notifications"), { forEmail: t.assignedToEmail, message: `OVERDUE: Your task "${t.description}" is past its date.`, timestamp: Date.now(), read: false });
+                    } catch (e) { console.error("Notification failed", e); }
+                }
+            }
+        };
+    </script>
+
+
+
+
+</body>
+</html>
