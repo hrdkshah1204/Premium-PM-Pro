@@ -209,7 +209,7 @@ window.toggleMemberEdit = async () => {
             alert("Failed to update profile: " + e.message);
         }
     }
-};;
+};
 
 // --- 4. NOTIFICATIONS & BOOKMARKS ---
 window.toggleBookmark = (id, cur) => {
@@ -246,4 +246,5 @@ window.deleteMemberNotifications = async () => {
         snap.forEach(d => deleteDoc(doc(db, "notifications", d.id)));
     }
 };
+
 
