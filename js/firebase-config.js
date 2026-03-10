@@ -6,7 +6,7 @@ import { getFirestore } from "https://www.gstatic.com/firebasejs/10.8.0/firebase
 
 const firebaseConfig = {
   apiKey: "AIzaSyB3xwQj1TXXBhE1UyH4LJaKV3a-qU5sU64",
-  AUTH Domain: "pmpro-4507b.firebaseapp.com",
+  authDomain: "pmpro-4507b.firebaseapp.com",
   projectId: "pmpro-4507b",
   storageBucket: "pmpro-4507b.firebasestorage.app",
   messagingSenderId: "508717628741",
@@ -23,4 +23,5 @@ export const analytics = getAnalytics(app);
 
 // Initialize Secondary App (Used for Admin creating Members safely)
 const secondaryApp = initializeApp(firebaseConfig, "SecondaryApp");
+
 export const secondaryAuth = getAuth(secondaryApp);
