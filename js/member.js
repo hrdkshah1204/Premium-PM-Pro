@@ -158,19 +158,58 @@ window.submitTaskUpdate = async (tid) => {
     }
 };
 
-window.updateMemberProfile = async () => {
-    try {
-        await updateDoc(doc(db, "users", auth.currentUser.email), { 
-            phone: document.getElementById('mp-phone').value, 
-            residentialAddress: document.getElementById('mp-address').value,
-            emergencyName: document.getElementById('mp-em-name').value,
-            emergencyPhone: document.getElementById('mp-em-num').value 
+window.toggleMemberEdit = async () => {
+    const btn = document.getElementById('btn-edit-member');
+    // List of fields that should be unlockable
+    const fieldsToToggle = ['mp-name', 'mp-phone', 'mp-address', 'mp-em-name', 'mp-em-num'];
+
+    if (btn.innerText === "Edit Details") {
+        // --- STEP A: UNLOCK FIELDS ---
+        fieldsToToggle.forEach(id => {
+            const el = document.getElementById(id);
+            if (el) el.disabled = false;
         });
-        alert("Profile Updated!");
-    } catch (e) {
-        alert("Error updating profile: " + e.message);
+        btn.innerText = "Update Details";
+        btn.style.background = "#10b981"; // Optional: Change color to green when in "Update" mode
+    } else {
+        // --- STEP B: SAVE & LOCK FIELDS ---
+        const newName = document.getElementById('mp-name').value.trim();
+        const newPhone = document.getElementById('mp-phone').value.trim();
+        const newAddress = document.getElementById('mp-address').value.trim();
+        const newEmName = document.getElementById('mp-em-name').value.trim();
+        const newEmNum = document.getElementById('mp-em-num').value.trim();
+
+        try {
+            // Save to Firestore
+            await updateDoc(doc(db, "users", auth.currentUser.email), { 
+                name: newName,
+                phone: newPhone, 
+                residentialAddress: newAddress,
+                emergencyName: newEmName,
+                emergencyPhone: newEmNum 
+            });
+
+            // Update the sidebar name immediately so the user sees the change
+            if (document.getElementById('m-side-name')) {
+                document.getElementById('m-side-name').innerText = newName;
+            }
+
+            alert("Profile Updated Successfully!");
+
+            // Lock all fields again
+            fieldsToToggle.forEach(id => {
+                const el = document.getElementById(id);
+                if (el) el.disabled = true;
+            });
+            btn.innerText = "Edit Details";
+            btn.style.background = ""; // Revert to default primary color
+            
+        } catch (e) {
+            console.error("Profile update failed:", e);
+            alert("Failed to update profile: " + e.message);
+        }
     }
-};
+};;
 
 // --- 4. NOTIFICATIONS & BOOKMARKS ---
 window.toggleBookmark = (id, cur) => {
@@ -207,3 +246,4 @@ window.deleteMemberNotifications = async () => {
         snap.forEach(d => deleteDoc(doc(db, "notifications", d.id)));
     }
 };
+
