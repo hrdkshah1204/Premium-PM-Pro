@@ -223,10 +223,33 @@ window.lastSelectedProjectId = "";
 
 window.manualStatusUpdate = async (taskId, newStatus) => {
     try {
+        // 1. Get task details so we know what it's called and who has it
+        const tDoc = await getDoc(doc(db, "tasks", taskId));
+        if (!tDoc.exists()) return;
+        const t = tDoc.data();
+
+        // 2. Update the task status
         await updateDoc(doc(db, "tasks", taskId), { status: newStatus });
-        alert("Status updated to " + newStatus);
+        
+        // 3. Send notification to the assigned member (if someone is assigned)
+        if (t.assignedToEmail) {
+            await addDoc(collection(db, "notifications"), {
+                forEmail: t.assignedToEmail,
+                fromEmail: auth.currentUser.email,
+                message: `Status Changed: Admin updated your task "${t.description}" to [${newStatus}]`,
+                timestamp: Date.now(),
+                read: false,
+                bookmarked: false
+            });
+            console.log(`Notification sent to ${t.assignedToEmail}`);
+        }
+
+        alert(`Status updated to ${newStatus} and user notified!`);
         window.loadAssignmentTable();
-    } catch (e) { console.error(e); }
+    } catch (e) { 
+        console.error("Status Update Error:", e); 
+        alert("Failed to update status.");
+    }
 };
 
 window.loadAssignProjectDropdown = async () => {
