@@ -3,7 +3,22 @@ import { auth, db, analytics } from './firebase-config.js';
 import { logEvent } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-analytics.js";
 import { doc, getDoc, updateDoc, addDoc, collection, getDocs, query, where, onSnapshot } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
 
-// --- MEMBER CORE MODULES ---
+// --- 0. MEMBER NAVIGATION (FIXES ALL TABS) ---
+window.navToMember = (id) => {
+    // 1. Hide all member pages
+    document.querySelectorAll('.m-page').forEach(p => p.classList.add('hidden'));
+    
+    // 2. Show the selected page
+    const target = document.getElementById(id);
+    if (target) target.classList.remove('hidden');
+
+    // 3. Highlight the active sidebar button
+    document.querySelectorAll('#member-view .sidebar-btn').forEach(b => b.classList.remove('active'));
+    const activeBtn = Array.from(document.querySelectorAll('#member-view .sidebar-btn')).find(b => b.getAttribute('onclick')?.includes(id));
+    if (activeBtn) activeBtn.classList.add('active');
+};
+
+// --- 1. MEMBER CORE MODULES ---
 window.initMemberDashboard = async function(email, data) {
     document.getElementById('member-view').classList.remove('hidden');
     
@@ -12,7 +27,7 @@ window.initMemberDashboard = async function(email, data) {
     if (document.getElementById('m-side-team')) document.getElementById('m-side-team').innerText = data.teamName || "General Team";
     if (document.getElementById('m-side-company')) document.getElementById('m-side-company').innerText = data.company || "Org";
     
-    // Profile inputs (Safety checks added)
+    // Profile inputs 
     if (document.getElementById('mp-name')) document.getElementById('mp-name').value = data.name || ""; 
     if (document.getElementById('mp-email')) document.getElementById('mp-email').value = email || "";
     if (document.getElementById('mp-phone')) document.getElementById('mp-phone').value = data.phone || "";
@@ -30,7 +45,6 @@ window.initMemberDashboard = async function(email, data) {
         const pMap = {}; 
         projs.forEach(p => pMap[p.id] = p.data()); 
         
-        // Ensure global helper is called
         if (window.checkOverdueAndNotify) await window.checkOverdueAndNotify(tasks);
         renderMemberTasks(tasks, pMap);
     });
@@ -38,6 +52,7 @@ window.initMemberDashboard = async function(email, data) {
     loadMemberNotifications(email);
 };
 
+// --- 2. RENDER TASKS & HISTORY ---
 function renderMemberTasks(tasks, pMap) {
     const grid = document.getElementById('m-task-grid'); 
     if (grid) grid.innerHTML = '';
@@ -65,7 +80,7 @@ function renderMemberTasks(tasks, pMap) {
         }
     });
 
-    // 1. RENDER ACTIVE TASKS
+    // RENDER ACTIVE TASKS
     for (const [pid, pTasks] of Object.entries(activeTasksByProject)) {
         const projectData = pMap[pid] || { name: 'Unknown Project', description: 'No project details available.' };
         let projectHTML = `<div class="project-card" style="grid-column: 1 / -1;"><div class="project-header" style="flex-direction: column; align-items: flex-start; gap: 5px;"><div style="font-size: 16px;">${projectData.name}</div><div style="font-size: 12px; font-weight: normal; opacity: 0.9;">Project Details: ${projectData.description}</div></div><table class="card-table">`;
@@ -81,7 +96,7 @@ function renderMemberTasks(tasks, pMap) {
         if (grid) grid.innerHTML += projectHTML;
     }
 
-    // 2. RENDER COMPLETED TASKS (FIXED: This was missing!)
+    // RENDER COMPLETED TASKS (History Tab)
     for (const [pid, pTasks] of Object.entries(doneTasksByProject)) {
         const projectData = pMap[pid] || { name: 'Unknown Project' };
         let historyHTML = `<div class="project-card" style="grid-column: 1 / -1; opacity: 0.8;"><div class="project-header" style="background: #10b981;">${projectData.name} - Completed</div><table class="card-table">`;
@@ -93,7 +108,7 @@ function renderMemberTasks(tasks, pMap) {
         if (historyGrid) historyGrid.innerHTML += historyHTML;
     }
 
-    // 3. Summary Stats
+    // Summary Stats
     if (document.getElementById('m-stat-total')) document.getElementById('m-stat-total').innerText = s.total;
     if (document.getElementById('m-stat-done')) document.getElementById('m-stat-done').innerText = s.done;
     if (document.getElementById('m-stat-wip')) document.getElementById('m-stat-wip').innerText = s.wip;
@@ -101,6 +116,7 @@ function renderMemberTasks(tasks, pMap) {
     if (document.getElementById('m-stat-hold')) document.getElementById('m-stat-hold').innerText = s.hold;
 }
 
+// --- 3. SUBMIT UPDATES & PROFILE ---
 window.submitTaskUpdate = async (tid) => {
     try {
         const stat = document.getElementById(`stat-${tid}`).value;
@@ -116,19 +132,15 @@ window.submitTaskUpdate = async (tid) => {
         const t = tDoc.data();
         
         let payload = { status: stat, completionDate: cdate };
-        
         if (comm) {
             const note = { date: new Date().toLocaleString(), text: comm };
             payload.commentHistory = t.commentHistory ? [...t.commentHistory, note] : [note];
         }
         
-        // 1. Update the actual task
         await updateDoc(doc(db, "tasks", tid), payload);
         
-        // 2. BULLETPROOF NOTIFICATION LOGIC
-        // Try to get Admin email from the Member profile first. If missing, get it from the Task!
+        // Bulletproof Admin Notification Logic
         const targetAdminEmail = memberData.adminEmail || t.adminEmail;
-
         if (targetAdminEmail) {
             await addDoc(collection(db, "notifications"), { 
                 forEmail: targetAdminEmail, 
@@ -138,14 +150,10 @@ window.submitTaskUpdate = async (tid) => {
                 read: false,
                 bookmarked: false
             });
-            console.log("Notification successfully sent to Admin:", targetAdminEmail);
-        } else {
-            console.warn("Could not find an Admin email to notify.");
         }
         
         alert("Task updated successfully!");
     } catch (e) { 
-        console.error("Update Error:", e);
         alert("Error: " + e.message); 
     }
 };
@@ -164,9 +172,7 @@ window.updateMemberProfile = async () => {
     }
 };
 
-// --- NOTIFICATIONS & BOOKMARKS ---
-
-// FIXED: Added missing toggleBookmark function for members
+// --- 4. NOTIFICATIONS & BOOKMARKS ---
 window.toggleBookmark = (id, cur) => {
     updateDoc(doc(db, "notifications", id), { bookmarked: !cur });
 };
@@ -185,7 +191,7 @@ function loadMemberNotifications(email) {
         if(dot) hasUnread ? dot.classList.remove('hidden') : dot.classList.add('hidden');
         
         docs.forEach(n => {
-            tb.innerHTML += `<tr style="background:${n.read?'transparent':'rgba(37,99,235,0.05)'}"><td>${n.message}<br><small>${new Date(n.timestamp).toLocaleString()}</small></td><td><button onclick="toggleBookmark('${n.id}', ${n.bookmarked})">${n.bookmarked ? '⭐' : '☆'}</button></td></tr>`;
+            tb.innerHTML += `<tr style="background:${n.read?'transparent':'rgba(37,99,235,0.05)'}"><td>${n.message}<br><small style="color:#64748b">${new Date(n.timestamp).toLocaleString()}</small></td><td><button onclick="toggleBookmark('${n.id}', ${n.bookmarked})">${n.bookmarked ? '⭐' : '☆'}</button></td></tr>`;
         });
     });
 }
