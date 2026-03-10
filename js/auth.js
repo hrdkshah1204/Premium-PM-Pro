@@ -62,7 +62,7 @@ window.forgotPassword = () => {
     sendPasswordResetEmail(auth, email).then(() => alert("Reset email sent!")).catch(err => alert(err.message));
 };
 
-//window.signIn = () => signInWithPopup(auth, provider);
+window.signIn = () => signInWithPopup(auth, provider);
 window.signOutUser = () => signOut(auth);
 
 window.completeOnboarding = async () => {
@@ -85,14 +85,11 @@ window.completeOnboarding = async () => {
 };
 
 // --- AUTH STATE LISTENER (The Gatekeeper) ---
+// js/auth.js
+
 onAuthStateChanged(auth, async (user) => {
     if (user) {
-        if (!user.emailVerified) {
-            document.getElementById('auth-status').innerText = "Please verify your email!";
-            signOut(auth); return;
-        }
-
-        setUserId(analytics, user.uid); // GA4 Tracking
+        // ... (existing email verification check) ...
 
         const userSnap = await getDoc(doc(db, "users", user.email));
         
@@ -105,19 +102,28 @@ onAuthStateChanged(auth, async (user) => {
                 document.getElementById('display-org-name').innerText = data.company || "Workspace";
                 document.querySelectorAll('.user-name').forEach(el => el.innerText = data.name);
                 
-                // Populate Settings
-                document.getElementById('set-name').value = data.name || "";
-                document.getElementById('set-email').value = user.email || ""; 
-                document.getElementById('set-phone').value = data.phone || "";
-                document.getElementById('set-company').value = data.company || "";
-                document.getElementById('set-size').value = data.teamSize || "1 - 10";
-                document.getElementById('set-address').value = data.companyAddress || "";
-                
-                // Calls functions that still exist in index.html (for now)
+                // --- AUTO-WALKTHROUGH TRIGGER ---
+                const hasSeenGuide = localStorage.getItem('propm-walkthrough-seen');
+                if (!hasSeenGuide) {
+                    setTimeout(() => {
+                        window.toggleWalkthrough(); // Start the guide automatically
+                        localStorage.setItem('propm-walkthrough-seen', 'true');
+                    }, 1500); // Small delay so the dashboard loads first
+                }
+
                 window.loadAdminNotifications();
                 window.navTo('sub1');
             } else if (data.role === 'member') {
                 window.initMemberDashboard(user.email, data);
+
+                // --- MEMBER AUTO-WALKTHROUGH ---
+                const hasSeenMemberGuide = localStorage.getItem('propm-member-guide-seen');
+                if (!hasSeenMemberGuide) {
+                    setTimeout(() => {
+                        window.toggleWalkthrough();
+                        localStorage.setItem('propm-member-guide-seen', 'true');
+                    }, 1500);
+                }
             } else {
                 document.getElementById('onboarding-view').classList.remove('hidden');
             }
@@ -126,10 +132,7 @@ onAuthStateChanged(auth, async (user) => {
             document.getElementById('onboarding-view').classList.remove('hidden');
         }
     } else {
-        document.getElementById('login-view').classList.remove('hidden');
-        document.getElementById('admin-view').classList.add('hidden');
-        document.getElementById('member-view').classList.add('hidden');
-        document.getElementById('onboarding-view').classList.add('hidden');
+        // ... (existing logout UI logic) ...
     }
 });
 
@@ -154,4 +157,3 @@ window.navToMember = (id) => {
     document.querySelectorAll('.m-page').forEach(p => p.classList.add('hidden'));
     document.getElementById(id).classList.remove('hidden');
 };
-
