@@ -286,6 +286,7 @@ window.assignSpecificTask = async (tid) => {
     const member = window.workspaceMembers.find(m => m.email === email);
     const teamName = window.workspaceTeams.find(t => t.id === teamId)?.name || "Unknown";
     
+    // 1. Update the Task
     await updateDoc(doc(db, "tasks", tid), { 
         assignedToEmail: email, 
         assignedToName: member.name, 
@@ -294,7 +295,22 @@ window.assignSpecificTask = async (tid) => {
         status: 'assigned', 
         targetDate: date 
     });
-    alert("Task Assigned!"); 
+
+    // 2. BUG FIX: Send the Notification to the Member
+    try {
+        await addDoc(collection(db, "notifications"), { 
+            forEmail: email, 
+            fromEmail: auth.currentUser.email, 
+            message: `New task assigned. Target Date: ${date}.`, 
+            timestamp: Date.now(), 
+            read: false, 
+            bookmarked: false 
+        });
+    } catch (notifErr) {
+        console.error("Notification failed to send:", notifErr);
+    }
+
+    alert("Task Assigned & User Notified!"); 
     window.loadAssignmentTable();
 };
 
