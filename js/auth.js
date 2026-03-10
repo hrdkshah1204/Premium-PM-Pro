@@ -10,6 +10,8 @@ import { doc, getDoc, setDoc } from "https://www.gstatic.com/firebasejs/10.8.0/f
 
 const provider = new GoogleAuthProvider();
 provider.setCustomParameters({prompt: 'select_account'});
+
+// --- GLOBAL GOOGLE SIGN-IN ---
 window.signIn = () => {
     signInWithPopup(auth, provider)
         .then((result) => {
@@ -17,18 +19,17 @@ window.signIn = () => {
         })
         .catch((error) => {
             console.error("Login Failed:", error.code, error.message);
-            // If you still see 'auth/unauthorized-domain', Step 1 didn't save yet!
             document.getElementById('auth-status').innerText = "Error: " + error.message;
         });
 };
-	
+    
 // --- UI THEME ---
 window.setTheme = (mode) => {
     document.documentElement.setAttribute('data-theme', mode);
     localStorage.setItem('propm-theme', mode);
 };
 
-// --- AUTHENTICATION LOGIC ---
+// --- EMAIL/PASSWORD AUTHENTICATION LOGIC ---
 let isRegistrationMode = false;
 window.toggleAuthMode = () => {
     isRegistrationMode = !isRegistrationMode;
@@ -62,9 +63,9 @@ window.forgotPassword = () => {
     sendPasswordResetEmail(auth, email).then(() => alert("Reset email sent!")).catch(err => alert(err.message));
 };
 
-window.signIn = () => signInWithPopup(auth, provider);
 window.signOutUser = () => signOut(auth);
 
+// --- ONBOARDING LOGIC ---
 window.completeOnboarding = async () => {
     await logEvent(analytics, 'onboarding_complete');
     setUserProperties(analytics, { user_cohort: 'onboarded_only' });
@@ -85,11 +86,16 @@ window.completeOnboarding = async () => {
 };
 
 // --- AUTH STATE LISTENER (The Gatekeeper) ---
-// js/auth.js
-
 onAuthStateChanged(auth, async (user) => {
+    const helpWidget = document.getElementById('help-widget');
+
     if (user) {
-        // ... (existing email verification check) ...
+        if (!user.emailVerified) {
+            document.getElementById('auth-status').innerText = "Please verify your email!";
+            signOut(auth); return;
+        }
+
+        setUserId(analytics, user.uid); // GA4 Tracking
 
         const userSnap = await getDoc(doc(db, "users", user.email));
         
@@ -97,33 +103,39 @@ onAuthStateChanged(auth, async (user) => {
             const data = userSnap.data();
             document.getElementById('login-view').classList.add('hidden');
             
+            // SHOW HELP BUTTON NOW THAT USER IS LOGGED IN
+            if(helpWidget) helpWidget.classList.remove('hidden');
+            
             if (data.role === 'admin' && data.onboardingComplete) {
                 document.getElementById('admin-view').classList.remove('hidden');
                 document.getElementById('display-org-name').innerText = data.company || "Workspace";
                 document.querySelectorAll('.user-name').forEach(el => el.innerText = data.name);
                 
-                // --- AUTO-WALKTHROUGH TRIGGER ---
-                const hasSeenGuide = localStorage.getItem('propm-walkthrough-seen');
+                // Populate Settings
+                document.getElementById('set-name').value = data.name || "";
+                document.getElementById('set-email').value = user.email || ""; 
+                document.getElementById('set-phone').value = data.phone || "";
+                document.getElementById('set-company').value = data.company || "";
+                document.getElementById('set-size').value = data.teamSize || "1 - 10";
+                document.getElementById('set-address').value = data.companyAddress || "";
+                
+                // AUTO-WALKTHROUGH TRIGGER
+                const hasSeenGuide = localStorage.getItem('propm_guide_done');
                 if (!hasSeenGuide) {
                     setTimeout(() => {
-                        window.toggleWalkthrough(); // Start the guide automatically
-                        localStorage.setItem('propm-walkthrough-seen', 'true');
-                    }, 1500); // Small delay so the dashboard loads first
+                        if(window.toggleWalkthrough) {
+                            window.toggleWalkthrough();
+                            localStorage.setItem('propm_guide_done', 'true');
+                        }
+                    }, 2000); 
                 }
 
                 window.loadAdminNotifications();
                 window.navTo('sub1');
             } else if (data.role === 'member') {
-                window.initMemberDashboard(user.email, data);
-
-                // --- MEMBER AUTO-WALKTHROUGH ---
-                const hasSeenMemberGuide = localStorage.getItem('propm-member-guide-seen');
-                if (!hasSeenMemberGuide) {
-                    setTimeout(() => {
-                        window.toggleWalkthrough();
-                        localStorage.setItem('propm-member-guide-seen', 'true');
-                    }, 1500);
-                }
+                document.getElementById('member-view').classList.remove('hidden');
+                // Ensure initMemberDashboard is defined in member.js
+                if(window.initMemberDashboard) window.initMemberDashboard(user.email, data);
             } else {
                 document.getElementById('onboarding-view').classList.remove('hidden');
             }
@@ -132,28 +144,14 @@ onAuthStateChanged(auth, async (user) => {
             document.getElementById('onboarding-view').classList.remove('hidden');
         }
     } else {
-        // ... (existing logout UI logic) ...
+        // HIDE EVERYTHING ON LOGOUT
+        document.getElementById('login-view').classList.remove('hidden');
+        document.getElementById('admin-view').classList.add('hidden');
+        document.getElementById('member-view').classList.add('hidden');
+        document.getElementById('onboarding-view').classList.add('hidden');
+        if(helpWidget) helpWidget.classList.add('hidden');
     }
 });
 
-// --- NAVIGATION LOGIC ---
-window.navTo = (id) => {
-    document.querySelectorAll('.sub-page').forEach(p => p.classList.add('hidden'));
-    document.querySelectorAll('#admin-view .sidebar-btn').forEach(b => b.classList.remove('active'));
-    document.getElementById(id).classList.remove('hidden');
-    const sideBtn = Array.from(document.querySelectorAll('.sidebar-btn')).find(b => b.getAttribute('onclick')?.includes(id));
-    if(sideBtn) sideBtn.classList.add('active');
-    
-    // Call load functions based on page
-    if(id === 'sub1') window.loadProjectsTable();
-    if(id === 'sub2') { window.loadProjectDropdown(); window.loadTasksTable(); }
-    if(id === 'sub3') window.loadTeamsTable();
-    if(id === 'sub4') { window.loadTeamDropdownForMembers(); window.loadMembersTable(); }
-    if(id === 'sub5') { window.loadAssignProjectDropdown(); window.fetchTeamsAndMembers(); }
-    if(id === 'sub6') { window.runAnalytics(); logEvent(analytics, 'view_analytics_dashboard'); }
-};
-
-window.navToMember = (id) => {
-    document.querySelectorAll('.m-page').forEach(p => p.classList.add('hidden'));
-    document.getElementById(id).classList.remove('hidden');
-};
+// NOTE: window.navTo and window.navToMember have been removed from here 
+// because they are safely managed inside admin.js and member.js respectively.
